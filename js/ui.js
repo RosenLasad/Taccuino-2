@@ -193,7 +193,8 @@
     const user = payload && payload.user ? payload.user : null;
     const syncStatus = payload && payload.syncStatus ? payload.syncStatus : "guest";
 
-    dom.authStatus.textContent = user ? (user.email || "Utente") : "Ospite";
+    dom.authStatus.textContent = getUserDisplayName(user);
+    dom.authStatus.title = user && user.email ? user.email : dom.authStatus.textContent;
     dom.authBtn.textContent = user ? "Logout" : "Login";
     updateSyncStatus(dom, syncStatus);
   }
@@ -208,8 +209,25 @@
     };
 
     const normalized = labelByStatus[syncStatus] ? syncStatus : "guest";
-    dom.syncStatus.textContent = labelByStatus[normalized];
     dom.syncStatus.className = `sync-status ${normalized}`;
+    dom.syncStatus.textContent = "";
+    dom.syncStatus.setAttribute("aria-label", labelByStatus[normalized]);
+    dom.syncStatus.setAttribute("title", labelByStatus[normalized]);
+  }
+
+  function getUserDisplayName(user) {
+    if (!user) return "Ospite";
+
+    const authApi = window.Taccuino && window.Taccuino.auth;
+    if (authApi && typeof authApi.getDisplayName === "function") {
+      return authApi.getDisplayName(user);
+    }
+
+    if (typeof user.email === "string" && user.email.includes("@")) {
+      return user.email.split("@")[0];
+    }
+
+    return "Utente";
   }
 
   function updateEmptyState(dom, currentView) {
@@ -261,10 +279,6 @@
     }
   }
 
-  function syncChecklistRowState(row, isDone) {
-    row.classList.toggle("is-done", Boolean(isDone));
-  }
-
   function renderChecklistEditor(dom, checklistItems) {
     dom.checklistEditor.innerHTML = "";
 
@@ -290,7 +304,6 @@
       checkbox.setAttribute("aria-label", "Voce completata");
 
       const textInput = document.createElement("input");
-      textInput.className = "checklist-text-input";
       textInput.type = "text";
       textInput.value = item.text || "";
       textInput.placeholder = "Testo voce checklist";
@@ -299,13 +312,7 @@
       removeButton.className = "remove-checklist-item-btn";
       removeButton.type = "button";
       removeButton.setAttribute("aria-label", "Rimuovi voce");
-      removeButton.setAttribute("title", "Rimuovi voce");
       removeButton.textContent = "×";
-
-      syncChecklistRowState(row, Boolean(item.done));
-      checkbox.addEventListener("change", function () {
-        syncChecklistRowState(row, checkbox.checked);
-      });
 
       row.appendChild(checkbox);
       row.appendChild(textInput);
