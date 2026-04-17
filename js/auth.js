@@ -73,6 +73,42 @@
     if (!currentUser || typeof currentUser.jwt !== "function") return null;
     return currentUser.jwt();
   }
+function getDisplayName(user) {
+  const currentUser = user || getCurrentUser();
+  if (!currentUser) return "Ospite";
+
+  const userMetadata = currentUser.user_metadata || {};
+  const appMetadata = currentUser.app_metadata || {};
+
+  const candidates = [
+    userMetadata.full_name,
+    userMetadata.fullName,
+    userMetadata.name,
+    userMetadata.display_name,
+    userMetadata.displayName,
+    [userMetadata.first_name, userMetadata.last_name].filter(Boolean).join(" ").trim(),
+    appMetadata.full_name,
+    appMetadata.name,
+    currentUser.full_name,
+    currentUser.fullName,
+    currentUser.name,
+    currentUser.display_name,
+    currentUser.displayName
+  ];
+
+  const explicitName = candidates.find(function (value) {
+    return typeof value === "string" && value.trim().length > 0;
+  });
+
+  if (explicitName) return explicitName.trim();
+
+  if (typeof currentUser.email === "string" && currentUser.email.includes("@")) {
+    return currentUser.email.split("@")[0];
+  }
+
+  return "Utente";
+}
+
 
   window.Taccuino = window.Taccuino || {};
   window.Taccuino.auth = {
@@ -81,6 +117,7 @@
     open,
     logout,
     getCurrentUser,
-    getAccessToken
+    getAccessToken,
+    getDisplayName
   };
 })();
