@@ -60,7 +60,7 @@
         <div class="account-area" aria-label="Area account">
           <div class="account-meta">
             <span id="auth-status" class="account-status">Ospite</span>
-            <span id="sync-status" class="sync-status guest">Locale</span>
+            <span id="sync-status" class="sync-status guest" role="img" aria-label="Locale" title="Locale"></span>
           </div>
           <button id="auth-btn" class="account-btn" type="button">Login</button>
         </div>
@@ -166,8 +166,8 @@
 
         <div class="form-field">
           <div class="field-heading">
-            <span class="field-heading-title">Checklist</span>
-            <button id="add-checklist-item-btn" class="ghost-btn small-btn checklist-add-btn" type="button">+ Aggiungi voce</button>
+            <span>Checklist</span>
+            <button id="add-checklist-item-btn" class="ghost-btn small-btn" type="button">+ Aggiungi voce</button>
           </div>
           <div id="checklist-editor" class="checklist-editor"></div>
         </div>
@@ -195,9 +195,7 @@
           <span>Fissa questa nota in alto</span>
         </label>
 
-        <div class="color-presets-block">
-          <p class="field-helper">Colori rapidi</p>
-          <div class="color-presets">
+        <div class="color-presets">
           <button class="color-chip active" type="button" data-color="#c1121f" style="--chip:#c1121f;" aria-label="Rosso scuro"></button>
           <button class="color-chip" type="button" data-color="#ef4444" style="--chip:#ef4444;" aria-label="Rosso vivo"></button>
           <button class="color-chip" type="button" data-color="#f59e0b" style="--chip:#f59e0b;" aria-label="Ambra"></button>
@@ -205,18 +203,17 @@
           <button class="color-chip" type="button" data-color="#3b82f6" style="--chip:#3b82f6;" aria-label="Blu"></button>
           <button class="color-chip" type="button" data-color="#8b5cf6" style="--chip:#8b5cf6;" aria-label="Viola"></button>
         </div>
-        </div>
 
         <div class="form-footer">
           <div class="left-actions">
-            <button id="archive-note-btn" class="ghost-btn modal-action-btn modal-archive-btn hidden" type="button">Archivia</button>
-            <button id="trash-note-btn" class="danger-btn modal-action-btn modal-trash-btn hidden" type="button">Sposta nel cestino</button>
-            <button id="delete-note-btn" class="danger-btn modal-action-btn modal-delete-btn hidden" type="button">Elimina definitivamente</button>
+            <button id="archive-note-btn" class="ghost-btn hidden" type="button">Archivia</button>
+            <button id="trash-note-btn" class="danger-btn hidden" type="button">Sposta nel cestino</button>
+            <button id="delete-note-btn" class="danger-btn hidden" type="button">Elimina definitivamente</button>
           </div>
 
           <div class="right-actions">
-            <button id="cancel-note-btn" class="ghost-btn modal-action-btn modal-cancel-btn" type="button">Annulla</button>
-            <button class="primary-btn modal-action-btn modal-save-btn" type="submit">Salva nota</button>
+            <button id="cancel-note-btn" class="ghost-btn" type="button">Annulla</button>
+            <button class="primary-btn" type="submit">Salva nota</button>
           </div>
         </div>
       </form>
