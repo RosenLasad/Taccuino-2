@@ -1,15 +1,15 @@
 import { getStore } from "@netlify/blobs";
 import { getUser } from "@netlify/identity";
 
-const store = getStore("taccuino-notes");
-
-export default async (_req, _context) => {
-  const req = _req;
+export default async (req, context) => {
   const user = await getUser();
 
   if (!user) {
     return jsonResponse({ error: "Utente non autenticato." }, 401);
   }
+
+  // IMPORTANTE: crea lo store DENTRO la function
+  const store = getStore("taccuino-notes");
 
   const key = `users/${user.id}/notes`;
 
