@@ -91,7 +91,7 @@
       if (!note.checklist || note.checklist.length === 0) {
         checklistElement.classList.add("hidden");
       } else {
-        note.checklist.slice(0, 4).forEach((item) => {
+        note.checklist.slice(0, 2).forEach((item) => {
           const li = document.createElement("li");
           li.textContent = item.text;
           if (item.done) li.classList.add("done");
@@ -125,7 +125,7 @@
     });
 
     buttons.pinButton.classList.toggle("hidden", currentView !== "active");
-    buttons.pinButton.textContent = note.pinned ? "Sblocca" : "Fissa";
+    setActionIcon(buttons.pinButton, note.pinned ? "unpin" : "pin", note.pinned ? "Sblocca nota" : "Fissa nota");
     buttons.pinButton.addEventListener("click", function (event) {
       event.stopPropagation();
       handlers.onTogglePin(note.id);
@@ -134,11 +134,12 @@
     if (currentView === "trash") {
       buttons.archiveButton.classList.add("hidden");
       buttons.restoreButton.classList.remove("hidden");
+      setActionIcon(buttons.restoreButton, "restore", "Ripristina nota");
       buttons.restoreButton.addEventListener("click", function (event) {
         event.stopPropagation();
         handlers.onRestore(note.id);
       });
-      buttons.deleteButton.textContent = "Elimina";
+      setActionIcon(buttons.deleteButton, "delete", "Elimina definitivamente");
       buttons.deleteButton.addEventListener("click", function (event) {
         event.stopPropagation();
         handlers.onPermanentDelete(note.id);
@@ -146,17 +147,37 @@
     } else {
       buttons.restoreButton.classList.add("hidden");
       buttons.archiveButton.classList.remove("hidden");
-      buttons.archiveButton.textContent = currentView === "archived" ? "Ripristina" : "Archivia";
+      setActionIcon(buttons.archiveButton, currentView === "archived" ? "restore" : "archive", currentView === "archived" ? "Ripristina nota" : "Archivia nota");
       buttons.archiveButton.addEventListener("click", function (event) {
         event.stopPropagation();
         handlers.onToggleArchive(note.id);
       });
-      buttons.deleteButton.textContent = "Cestino";
+      setActionIcon(buttons.deleteButton, "trash", "Sposta nel cestino");
       buttons.deleteButton.addEventListener("click", function (event) {
         event.stopPropagation();
         handlers.onMoveToTrash(note.id);
       });
     }
+  }
+
+  function setActionIcon(button, icon, label) {
+    button.classList.add("note-card-action-btn");
+    button.setAttribute("aria-label", label);
+    button.setAttribute("title", label);
+    button.innerHTML = getActionIconSvg(icon);
+  }
+
+  function getActionIconSvg(icon) {
+    const icons = {
+      pin: '<svg class="note-card-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"></path><path d="M8 3h8l-1 5 3 4v1H6v-1l3-4-1-5Z"></path></svg>',
+      unpin: '<svg class="note-card-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"></path><path d="M8 3h8l-1 5 3 4v1H6v-1l3-4-1-5Z"></path><path d="M4 4l16 16"></path></svg>',
+      archive: '<svg class="note-card-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18"></path><path d="M5 7l1 11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-11"></path><path d="M9 11h6"></path><path d="M12 11v4"></path></svg>',
+      restore: '<svg class="note-card-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18"></path><path d="M5 7l1 11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-11"></path><path d="M8 14l4-4 4 4"></path></svg>',
+      trash: '<svg class="note-card-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg>',
+      delete: '<svg class="note-card-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="M6 6l12 12"></path></svg>'
+    };
+
+    return icons[icon] || icons.trash;
   }
 
   function renderBadges(note, container) {
