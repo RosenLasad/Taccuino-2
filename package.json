@@ -1,0 +1,17 @@
+{
+  "name": "taccuino",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "serve": "python3 -m http.server 8888"
+  },
+  "dependencies": {
+    "@netlify/blobs": "latest",
+    "@netlify/functions": "latest",
+    "@netlify/identity": "latest"
+  },
+  "devDependencies": {
+    "netlify-cli": "latest"
+  }
+}

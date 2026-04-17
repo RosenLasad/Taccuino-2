@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taccuino</title>
+  <meta name="theme-color" content="#0f0f10" />
+  <meta name="description" content="Taccuino: note rapide, checklist e categorie in un layout scuro, installabile e sincronizzabile con account Netlify Identity." />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="Taccuino">
+        <div class="brand-mark" aria-hidden="true">T</div>
+        <h1 class="visually-hidden">Taccuino</h1>
+      </div>
+
+      <div class="topbar-right">
+        <div class="topbar-actions">
+          <button id="install-app-btn" class="ghost-btn action-icon-btn hidden" type="button" aria-label="Installa app" title="Installa app">
+            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v10"></path>
+              <path d="m8 10 4 4 4-4"></path>
+              <path d="M4 17.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5"></path>
+            </svg>
+            <span class="visually-hidden">Installa app</span>
+          </button>
+          <button id="export-notes-btn" class="ghost-btn action-icon-btn" type="button" aria-label="Esporta JSON" title="Esporta JSON">
+            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 16V4"></path>
+              <path d="m8 8 4-4 4 4"></path>
+              <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path>
+            </svg>
+            <span class="visually-hidden">Esporta JSON</span>
+          </button>
+          <button id="import-notes-btn" class="ghost-btn action-icon-btn" type="button" aria-label="Importa JSON" title="Importa JSON">
+            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4v12"></path>
+              <path d="m8 12 4 4 4-4"></path>
+              <path d="M5 20v-4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"></path>
+            </svg>
+            <span class="visually-hidden">Importa JSON</span>
+          </button>
+          <button id="new-note-btn" class="primary-btn action-icon-btn" type="button" aria-label="Nuova nota" title="Nuova nota">
+            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 3h3a3 3 0 0 1 3 3v3"></path>
+              <path d="M10 14 21 3"></path>
+              <path d="M21 11v7a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h7"></path>
+              <path d="M8 12h4"></path>
+              <path d="M10 10v4"></path>
+            </svg>
+            <span class="visually-hidden">Nuova nota</span>
+          </button>
+          <input id="import-file-input" class="hidden" type="file" accept="application/json,.json" />
+        </div>
+
+        <div class="account-area" aria-label="Area account">
+          <div class="account-meta">
+            <span id="auth-status" class="account-status">Ospite</span>
+            <span id="sync-status" class="sync-status guest">Locale</span>
+          </div>
+          <button id="auth-btn" class="account-btn" type="button">Login</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="Strumenti note">
+      <label class="search-field toolbar-search">
+        <span class="visually-hidden">Cerca nelle note</span>
+        <input id="search-input" type="search" placeholder="Cerca titolo, testo o checklist..." />
+      </label>
+
+      <div class="toolbar-filters-row" aria-label="Filtri e ordinamento">
+        <label class="toolbar-control">
+          <span>Vista</span>
+          <select id="view-select">
+            <option value="active">Attive</option>
+            <option value="archived">Archivio</option>
+            <option value="trash">Cestino</option>
+          </select>
+        </label>
+
+        <label class="toolbar-control">
+          <span>Ordina</span>
+          <select id="sort-select">
+            <option value="updated-desc">Più recenti</option>
+            <option value="created-desc">Data di creazione</option>
+            <option value="title-asc">Titolo A-Z</option>
+            <option value="category-asc">Categoria</option>
+          </select>
+        </label>
+
+        <label class="toolbar-control">
+          <span>Categoria</span>
+          <select id="category-filter">
+            <option value="all">Tutte</option>
+            <option value="lavoro">Lavoro</option>
+            <option value="privato">Privato</option>
+            <option value="idee">Idee</option>
+            <option value="urgente">Urgente</option>
+            <option value="altro">Altro</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="summary-row" aria-label="Riepilogo">
+      <div class="summary-card">
+        <span class="summary-label">Note attive</span>
+        <strong id="active-notes-count">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Archiviate</span>
+        <strong id="archived-notes-count">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Nel cestino</span>
+        <strong id="trash-notes-count">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Checklist aperte</span>
+        <strong id="open-checklist-count">0</strong>
+      </div>
+    </section>
+
+    <main>
+      <section id="empty-state" class="empty-state">
+        <h2>Nessuna nota in questa vista</h2>
+        <p id="empty-state-text">Crea il tuo primo appunto, una lista rapida o una nota di lavoro.</p>
+        <button id="empty-new-note-btn" class="primary-btn" type="button">Crea la prima nota</button>
+      </section>
+
+      <section id="notes-grid" class="notes-grid" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <button id="mobile-new-note-btn" class="fab" type="button" aria-label="Nuova nota">+</button>
+
+  <div id="note-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+
+    <div class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <p class="modal-kicker">Editor nota</p>
+          <h2 id="modal-title">Nuova nota</h2>
+        </div>
+        <button id="close-modal-btn" class="icon-btn" type="button" aria-label="Chiudi">×</button>
+      </div>
+
+      <form id="note-form" class="note-form">
+        <input type="hidden" id="note-id" />
+
+        <label class="form-field">
+          <span>Titolo</span>
+          <input id="note-title" type="text" maxlength="120" placeholder="Titolo della nota" />
+        </label>
+
+        <label class="form-field">
+          <span>Testo</span>
+          <textarea id="note-text" rows="10" maxlength="3000" placeholder="Scrivi qui il contenuto della nota..."></textarea>
+        </label>
+
+        <div class="form-field">
+          <div class="field-heading">
+            <span class="field-heading-title">Checklist</span>
+            <button id="add-checklist-item-btn" class="ghost-btn small-btn checklist-add-btn" type="button">+ Aggiungi voce</button>
+          </div>
+          <div id="checklist-editor" class="checklist-editor"></div>
+        </div>
+
+        <div class="form-row note-meta-row">
+          <label class="form-field">
+            <span>Categoria</span>
+            <select id="note-category">
+              <option value="lavoro">Lavoro</option>
+              <option value="privato">Privato</option>
+              <option value="idee">Idee</option>
+              <option value="urgente">Urgente</option>
+              <option value="altro">Altro</option>
+            </select>
+          </label>
+
+          <label class="form-field note-color-field">
+            <span>Colore bordo</span>
+            <input id="note-color" type="color" value="#c1121f" />
+          </label>
+        </div>
+
+        <label class="toggle-field">
+          <input id="note-pinned" type="checkbox" />
+          <span>Fissa questa nota in alto</span>
+        </label>
+
+        <div class="color-presets-block">
+          <p class="field-helper">Colori rapidi</p>
+          <div class="color-presets">
+          <button class="color-chip active" type="button" data-color="#c1121f" style="--chip:#c1121f;" aria-label="Rosso scuro"></button>
+          <button class="color-chip" type="button" data-color="#ef4444" style="--chip:#ef4444;" aria-label="Rosso vivo"></button>
+          <button class="color-chip" type="button" data-color="#f59e0b" style="--chip:#f59e0b;" aria-label="Ambra"></button>
+          <button class="color-chip" type="button" data-color="#22c55e" style="--chip:#22c55e;" aria-label="Verde"></button>
+          <button class="color-chip" type="button" data-color="#3b82f6" style="--chip:#3b82f6;" aria-label="Blu"></button>
+          <button class="color-chip" type="button" data-color="#8b5cf6" style="--chip:#8b5cf6;" aria-label="Viola"></button>
+        </div>
+        </div>
+
+        <div class="form-footer">
+          <div class="left-actions">
+            <button id="archive-note-btn" class="ghost-btn modal-action-btn modal-archive-btn hidden" type="button">Archivia</button>
+            <button id="trash-note-btn" class="danger-btn modal-action-btn modal-trash-btn hidden" type="button">Sposta nel cestino</button>
+            <button id="delete-note-btn" class="danger-btn modal-action-btn modal-delete-btn hidden" type="button">Elimina definitivamente</button>
+          </div>
+
+          <div class="right-actions">
+            <button id="cancel-note-btn" class="ghost-btn modal-action-btn modal-cancel-btn" type="button">Annulla</button>
+            <button class="primary-btn modal-action-btn modal-save-btn" type="submit">Salva nota</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <template id="note-card-template">
+    <article class="note-card" tabindex="0">
+      <div class="note-card-header">
+        <div>
+          <div class="note-card-badges"></div>
+          <h3 class="note-card-title"></h3>
+          <p class="note-card-category"></p>
+        </div>
+        <span class="note-card-date"></span>
+      </div>
+
+      <p class="note-card-text"></p>
+      <ul class="note-card-checklist"></ul>
+
+      <div class="note-card-footer">
+        <button class="ghost-btn small-btn note-pin-btn" type="button"></button>
+        <button class="ghost-btn small-btn note-archive-btn" type="button"></button>
+        <button class="ghost-btn small-btn note-restore-btn hidden" type="button">Ripristina</button>
+        <button class="danger-btn small-btn note-delete-btn" type="button"></button>
+      </div>
+    </article>
+  </template>
+
+  <div id="toast" class="toast hidden" aria-live="polite"></div>
+
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="./js/notes.js" defer></script>
+  <script src="./js/storage.js" defer></script>
+  <script src="./js/ui.js" defer></script>
+  <script src="./js/pwa.js" defer></script>
+  <script src="./js/auth.js" defer></script>
+  <script src="./js/cloud.js" defer></script>
+  <script src="./js/app.js" defer></script>
+</body>
+</html>
