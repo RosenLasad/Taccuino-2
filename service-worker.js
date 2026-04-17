@@ -1,4 +1,5 @@
-const CACHE_NAME = "taccuino-v4-phase3-cache";
+const CACHE_NAME = "taccuino-v5-ui-cache";
+
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -40,31 +41,48 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const requestUrl = new URL(request.url);
 
-  if (request.method !== "GET") {
-    return;
-  }
+  if (request.method !== "GET") return;
+  if (requestUrl.pathname.startsWith("/.netlify/")) return;
+  if (requestUrl.origin !== self.location.origin) return;
 
-  if (requestUrl.pathname.startsWith("/.netlify/")) {
+  const isStaticAppAsset =
+    request.mode === "navigate" ||
+    requestUrl.pathname.endsWith(".html") ||
+    requestUrl.pathname.endsWith(".css") ||
+    requestUrl.pathname.endsWith(".js") ||
+    requestUrl.pathname.endsWith(".webmanifest");
+
+  if (isStaticAppAsset) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          const cachedResponse = await caches.match(request);
+          return cachedResponse || caches.match("./index.html");
+        })
+    );
     return;
   }
 
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+      if (cachedResponse) return cachedResponse;
 
-      return fetch(request)
-        .then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200) {
-            return networkResponse;
-          }
-
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+      return fetch(request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200) {
           return networkResponse;
-        })
-        .catch(() => caches.match("./index.html"))
+        }
+
+        const responseClone = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+        return networkResponse;
+      });
     })
   );
 });
